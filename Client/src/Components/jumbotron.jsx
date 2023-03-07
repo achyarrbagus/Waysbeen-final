@@ -5,8 +5,10 @@ import Card from "react-bootstrap/Card";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import produk1 from "../assets/produk-3.png";
-import { ContextGlobal } from "../assets/context/Context";
+import { ContextGlobal } from "../context/Context";
 import { useContext } from "react";
+import { useQuery } from "react-query";
+import { API } from "../config/api";
 
 //
 import waves from "../assets/Waves.png";
@@ -15,6 +17,7 @@ const jContainer = {
   width: "1100px",
   marginTop: "100px",
   position: "relative",
+  height: "150vh",
 };
 
 const rowBg = {
@@ -53,7 +56,15 @@ function Jumbotron() {
   const { state, setState, stateQuantity, setStateQuantity } = kumpulanState;
 
   const [productData, setProductData] = useState([]);
-  useEffect(() => {}, []);
+
+  let { data: products } = useQuery("productsChace", async () => {
+    const response = await API.get("/product");
+    return response.data.data;
+  });
+
+  useEffect(() => {
+    console.log(products);
+  }, [products]);
 
   // fecth data from local Storage
   // const fecthData = () => {
@@ -78,23 +89,29 @@ function Jumbotron() {
           </div>
         </Col>
       </Row>
-      <Row className="d-flex justify-content-center gap-5 " style={produk}>
-        {productData.map((item, index) => (
-          <Col md={3}>
-            <Link to={`/detail-product/${item.id}`} style={{ textDecoration: "none", color: "black" }}>
-              <Card style={{ width: "18rem" }}>
-                <Card.Img variant="top" src={produk1} />
-                <Card.Body style={cardColor}>
-                  <Card.Title>{item.nameProduct}</Card.Title>
-                  <Card.Text>
-                    <p>Rp.{item.priceProduct}</p>
-                    <p>Stock:{item.stock}</p>
-                  </Card.Text>
-                </Card.Body>
-              </Card>
-            </Link>
-          </Col>
-        ))}
+      <Row className="d-flex justify-content-center gap-5 mt-5">
+        {products?.length !== 0 ? (
+          products?.map((item, index) => {
+            return (
+              <Col md={3}>
+                <Link to={`/detail-product/${item.id}`} style={{ textDecoration: "none", color: "black" }}>
+                  <Card style={{ width: "18rem" }}>
+                    <Card.Img variant="top" src={`http://localhost:5000/uploads/${item.photo}`} />
+                    <Card.Body>
+                      <Card.Title>{item.name}</Card.Title>
+                      <Card.Text>
+                        <p>Rp.{item.price}</p>
+                        <p>Stock:{item.stock}</p>
+                      </Card.Text>
+                    </Card.Body>
+                  </Card>
+                </Link>
+              </Col>
+            );
+          })
+        ) : (
+          <h1>empty Product</h1>
+        )}
       </Row>
     </Container>
   );

@@ -4,7 +4,7 @@ import produkOne from "../assets/produk-1.png";
 import sampah from "../assets/Sampah.png";
 import { useState } from "react";
 import Order from "../assets/order.json";
-import { ContextGlobal } from "../assets/context/Context";
+import { ContextGlobal } from "../context/Context";
 import { useContext, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import ShippingModal from "../Components/ShippingModal";

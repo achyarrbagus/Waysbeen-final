@@ -14,10 +14,14 @@ import IsLoginNav from "./IsLoginNav";
 import AdminNav from "./AdminNav";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { useMutation } from "react-query";
 
 //
-import { ContextGlobal } from "../assets/context/Context";
+import { ContextGlobal } from "../context/Context";
 import { useContext, useEffect } from "react";
+import { useQuery } from "react-query";
+import { API, setAuthToken } from "../config/api";
+import { UserContext } from "../context/UserContext";
 
 const containerNav = {
   backgroundColor: "#F5F5F5",
@@ -46,121 +50,99 @@ const MyNavbar = () => {
 
   const { kumpulanState } = useContext(ContextGlobal);
   const { userData, setUserData, islogin, setLogin, adminlogin, setAdminLogin } = kumpulanState;
-  const [inputLogin, setInputLogin] = useState([
-    {
-      email: "",
-      password: "",
-    },
-  ]);
+  const [state, dispatch] = useContext(UserContext);
+
   const userDataLocal = JSON.parse(localStorage.getItem("USERDATA"));
 
   const handleDiretToAdmin = () => {
     navigate("/admin");
   };
 
-  const handleRegisterChange = (e) => {
-    e.preventDefault();
-    let name = e.target.name;
-    let value = e.target.value;
-    setUserData({ ...userData, [name]: value });
-  };
   const date = new Date();
   const userId = date.getTime();
 
-  const handleRegisterSubmit = (e) => {
-    e.preventDefault();
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    const fullname = document.getElementById("fullname").value;
-    const newUser = {
-      email: email,
-      password: password,
-      fullname: fullname,
-      chart: [],
-      id: userId,
-    };
-
-    const datas = [newUser];
-
-    if (typeof Storage !== "undefined") {
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "Your Browserr Not Comppatible!",
-      });
-      if (localStorage.getItem("USERDATA")) {
-        let items = JSON.parse(localStorage.getItem("USERDATA"));
-        items.push(newUser);
-        const convertUpdate = JSON.stringify(items);
-        localStorage.setItem("USERDATA", convertUpdate);
-        Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: "Created Account Success!",
-        });
-      } else {
-        const convert = JSON.stringify(datas);
-        localStorage.setItem("USERDATA", convert);
-        Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: "Created Account Success!",
-        });
-      }
-    } else {
-      // Local storage tidak tersedia
-      console.log("Maaf, browser Anda tidak mendukung local storage.");
-    }
+  const [formRegister, setFormRegister] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+  const handleRegisterChange = (e) => {
+    setFormRegister({
+      ...formRegister,
+      [e.target.name]: e.target.value,
+    });
   };
 
-  //
+  const { name: fullname, email, password } = formRegister;
+
+  const handleRegisterSubmit = useMutation(async (e) => {
+    try {
+      e.preventDefault();
+      const formData = new FormData();
+      formData.set("name", formRegister.name);
+      formData.set("email", formRegister.email);
+      formData.set("password", formRegister.password);
+      const response = await API.post("/register", formData);
+
+      console.log("register succeess", response);
+      Swal.fire("Good job!", "You clicked the button!", "success");
+      setFormRegister({
+        name: "",
+        email: "",
+        password: "",
+      });
+    } catch (error) {
+      Swal.fire("register failed");
+      console.log(error);
+    }
+  });
+
   const handleLoginChange = (event) => {
     let name = event.target.name;
     let value = event.target.value;
     setInputLogin({ ...inputLogin, [name]: value });
   };
 
-  const handleLoginSubmit = (e) => {
-    e.preventDefault();
-    const found = userDataLocal.find((user) => user.email === inputLogin.email && user.password === inputLogin.password);
-    const admin = userData.find(
-      (user) => user.email === inputLogin.email && user.password === inputLogin.password && user.role === "admin"
-    );
+  //
+  const [inputLogin, setInputLogin] = useState({
+    email: "",
+    password: "",
+    tokenJwt: "",
+  });
 
-    if (admin) {
-      setAdminLogin(true);
-      const islogin = admin;
-      localStorage.setItem("ISLOGIN", JSON.stringify(admin));
-      handleDiretToAdmin();
-      Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "Loginn... Success!",
+  const handleLoginSubmit = useMutation(async (e) => {
+    try {
+      e.preventDefault();
+      const formData = new FormData();
+      formData.set("email", inputLogin.email);
+      formData.set("password", inputLogin.password);
+      // Insert data for login process, you can also make this without any configuration, because axios would automatically handling it.
+      const response = await API.post("/login", formData);
+      // Send data to useContext
+
+      dispatch({
+        type: "LOGIN_SUCCESS",
+        payload: response.data.data,
       });
-    } else if (found) {
+
+      setAuthToken(localStorage.token);
       setLogin(true);
-      const islogin = found;
-      localStorage.setItem("ISLOGIN", JSON.stringify(islogin));
-      Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "Loginn... Success!",
-      });
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "Account Not Found!",
-      });
-    }
 
-    setInputLogin([
-      {
-        email: "",
-        password: "",
-      },
-    ]);
-  };
+      // Status check
+      navigate("/");
+
+      //
+      if (state.user.role === "admin") {
+        setAdminLogin(true);
+      } else if (state.user.role === "user") {
+        setLogin(true);
+      }
+      console.log(state);
+    } catch (error) {
+      console.log(error);
+      alert("login failed");
+    }
+  });
   //
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("ISLOGIN"));
@@ -205,7 +187,7 @@ const MyNavbar = () => {
     setShow(true);
   };
 
-  if (adminlogin === true) {
+  if (adminlogin) {
     return (
       <>
         <AdminNav
@@ -216,7 +198,7 @@ const MyNavbar = () => {
         ;
       </>
     );
-  } else if (islogin === true) {
+  } else if (islogin) {
     return (
       <>
         <IsLoginNav login={() => setLogin(false)} qty={qty} />;
@@ -251,14 +233,15 @@ const MyNavbar = () => {
               <Modal.Title className="fs-2 fw-bolder">Register</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              <Form onSubmit={handleRegisterSubmit}>
+              <Form onSubmit={(e) => handleRegisterSubmit.mutate(e)}>
                 <div className="mb-3" controlId="formBasicEmail">
                   <Form.Control
                     type="email"
                     id="email"
                     placeholder="Email"
                     name="email"
-                    value={userData.email}
+                    value={email}
+                    required
                     onChange={handleRegisterChange}
                     style={{ backgroundColor: "#613D2B40", border: "solid 2px #613D2B" }}
                   />
@@ -269,7 +252,8 @@ const MyNavbar = () => {
                     id="password"
                     placeholder="Password"
                     name="password"
-                    value={userData.password}
+                    value={password}
+                    required
                     onChange={handleRegisterChange}
                     style={{ backgroundColor: "#613D2B40", border: "solid 2px #613D2B" }}
                   />
@@ -278,8 +262,9 @@ const MyNavbar = () => {
                   <Form.Control
                     type="text"
                     id="fullname"
-                    name="fullname"
-                    value={userData.fullname}
+                    name="name"
+                    value={fullname}
+                    required
                     placeholder="Full Name"
                     onChange={handleRegisterChange}
                     style={{ backgroundColor: "#613D2B40", border: "solid 2px #613D2B" }}
@@ -310,7 +295,7 @@ const MyNavbar = () => {
               <Modal.Title className="fs-2 fw-bolder">Login</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              <Form onSubmit={handleLoginSubmit}>
+              <Form onSubmit={(e) => handleLoginSubmit.mutate(e)}>
                 <Form.Group className="mb-3" controlId="formBasicEmail">
                   <Form.Control
                     name="email"
@@ -355,3 +340,5 @@ const MyNavbar = () => {
 };
 
 export default MyNavbar;
+
+//

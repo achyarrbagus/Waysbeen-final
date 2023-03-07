@@ -89,6 +89,7 @@ func (h *handlerAuth) Login(c echo.Context) error {
 		Password: c.FormValue("password"),
 	}
 
+	fmt.Println(user)
 	// Check email
 	user, err := h.AuthRepository.Login(user.Email)
 	if err != nil {

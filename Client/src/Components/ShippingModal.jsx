@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ContextGlobal } from "../assets/context/Context";
+import { ContextGlobal } from "../context/Context";
 import { useContext, useEffect } from "react";
 import { Container } from "react-bootstrap";
 import { Modal, Button, Form } from "react-bootstrap";

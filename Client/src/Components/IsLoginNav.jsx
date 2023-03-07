@@ -11,7 +11,7 @@ import Dropdown from "react-bootstrap/Dropdown";
 import Profile1 from "../assets/user2.png";
 import Logout from "../assets/logout.png";
 import { Badge } from "react-bootstrap";
-import { ContextGlobal } from "../assets/context/Context";
+import { ContextGlobal } from "../context/Context";
 import { useContext, useState, useEffect } from "react";
 
 function IsLoginNav(props) {

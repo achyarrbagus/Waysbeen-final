@@ -2,10 +2,12 @@ import { Container, Row, Col } from "react-bootstrap";
 // import data from "../assets/data.json";
 import "../styles.css";
 import { Link, useParams } from "react-router-dom";
-import { ContextGlobal } from "../assets/context/Context";
+import { ContextGlobal } from "../context/Context";
 import { useContext, useEffect, useState } from "react";
 import produk1 from "../assets/produk-3.png";
 import { useNavigate } from "react-router-dom";
+import { useQuery, useMutation } from "react-query";
+import { API } from "../config/api";
 
 //
 
@@ -17,11 +19,15 @@ const DetailProduk = () => {
   const { state, setState, chartData, setChartData, stateQuantity, setStateQuantity } = kumpulanState;
   const [product, setProduct] = useState({});
 
+  //
+  let { data: productdDetail } = useQuery("productCache", async () => {
+    const response = await API.get("/product/" + id);
+    return response.data.data;
+  });
+
   useEffect(() => {
-    const data = JSON.parse(localStorage.getItem("NEWPRODUCT"));
-    const foundId = data.find((item) => item.id === id);
-    setQuantity();
-    setProduct(foundId);
+    setProduct(productdDetail);
+    console.log(productdDetail);
   }, []);
   //
 
@@ -47,8 +53,8 @@ const DetailProduk = () => {
       descriptionProduct: product.descriptionProduct,
       Image: "https://seeklogo.com/images/K/kapal-api-logo-BDA931D774-seeklogo.com.png",
     };
-    // setQuantity();
-    // navigate("/");
+    setQuantity();
+    navigate("/");
 
     if (chartData === null) {
       newChart.quantity = 1;
@@ -56,7 +62,6 @@ const DetailProduk = () => {
       localStorage.setItem("CHARTDATA", newChartJson);
     } else {
       const indexChart = chartData.findIndex((e) => e.id === id);
-      // console.log(indexChart);
 
       if (indexChart === -1) {
         newChart.quantity = 1;
@@ -80,14 +85,14 @@ const DetailProduk = () => {
     <Container>
       <Row style={{ marginTop: "150px", height: "70vh" }} className="justify-content-center d-flex gap-2">
         <Col md={4}>
-          <img src={produk1} className="img-fluid" />
+          <img className="img-fluid" width={"100%"} src={`http://localhost:5000/uploads/${product?.photo}`} />
         </Col>
         <Col md={6} className="py-5">
-          <p className="openSans fs-1">{product.nameProduct}</p>
-          <p className="fs-5">{product.stock}</p>
-          <p className="fs-5">{product.descriptionProduct}</p>
+          <p className="openSans fs-1">{product?.name}</p>
+          <p className="fs-5">{product?.stock}</p>
+          <p className="fs-5">{product?.description}</p>
           <h2 className="text-end mt-5" style={{ color: "#974A4A" }}>
-            Rp. {product.priceProduct}
+            Rp.{product?.price}
           </h2>
           <button
             style={{ width: "100%", height: "40px", borderRadius: "5px", color: "white", background: "#613D2B" }}
