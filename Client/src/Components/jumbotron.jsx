@@ -63,7 +63,7 @@ function Jumbotron() {
   });
 
   useEffect(() => {
-    console.log(products);
+    setProductData(products);
   }, [products]);
 
   // fecth data from local Storage
@@ -91,7 +91,7 @@ function Jumbotron() {
       </Row>
       <Row className="d-flex justify-content-center gap-5 mt-5">
         {products?.length !== 0 ? (
-          products?.map((item, index) => {
+          productData?.map((item, index) => {
             return (
               <Col md={3}>
                 <Link to={`/detail-product/${item.id}`} style={{ textDecoration: "none", color: "black" }}>

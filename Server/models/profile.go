@@ -23,6 +23,7 @@ type ProfileResponse struct {
 	Gender  string `json:"gender"`
 	Address string `json:"address"`
 	UserID  int    `json:"user_id"`
+	Photo   string `json:"photo"`
 }
 
 func (ProfileResponse) TableName() string {

@@ -1,7 +1,7 @@
 import { Container, Row, Col } from "react-bootstrap";
 // import data from "../assets/data.json";
 import "../styles.css";
-import { Link, useParams } from "react-router-dom";
+import { json, Link, useParams } from "react-router-dom";
 import { ContextGlobal } from "../context/Context";
 import { useContext, useEffect, useState } from "react";
 import produk1 from "../assets/produk-3.png";
@@ -27,8 +27,7 @@ const DetailProduk = () => {
 
   useEffect(() => {
     setProduct(productdDetail);
-    console.log(productdDetail);
-  }, []);
+  }, [productdDetail]);
   //
 
   const setQuantity = () => {
@@ -46,16 +45,16 @@ const DetailProduk = () => {
 
   //
   const addChart = () => {
-    const newChart = {
-      namaProduct: product.nameProduct,
-      priceProduct: product.priceProduct,
-      id: product.id,
-      descriptionProduct: product.descriptionProduct,
-      Image: "https://seeklogo.com/images/K/kapal-api-logo-BDA931D774-seeklogo.com.png",
+    let newChart = {
+      namaProduct: product.name,
+      priceProduct: product.price,
+      id: id,
+      quantity: 0,
+      descriptionProduct: product.description,
+      Image: product.photo,
     };
-    setQuantity();
-    navigate("/");
 
+    console.log(chartData);
     if (chartData === null) {
       newChart.quantity = 1;
       const newChartJson = JSON.stringify([newChart]);

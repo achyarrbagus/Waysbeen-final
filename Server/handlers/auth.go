@@ -61,6 +61,7 @@ func (h *handlerAuth) Register(c echo.Context) error {
 
 	createdProfil := models.Profile{
 		Email:     requestEmail,
+		Photo:     "image-170524068.png",
 		Phone:     "",
 		UserID:    data.ID,
 		Gender:    "",
@@ -116,10 +117,19 @@ func (h *handlerAuth) Login(c echo.Context) error {
 	}
 
 	loginResponse := authdto.LoginResponse{
-		Email: user.Email,
-		Role:  user.Role,
-		Token: token,
+		Email:  user.Email,
+		Role:   user.Role,
+		Token:  token,
+		UserID: user.ID,
 	}
 
 	return c.JSON(http.StatusOK, dto.SuccessResult{Code: http.StatusOK, Data: loginResponse})
+}
+
+func (h *handlerAuth) CheckAuth(c echo.Context) error {
+	userLogin := c.Get("userLogin")
+	userId := userLogin.(jwt.MapClaims)["id"].(float64)
+
+	user, _ := h.AuthRepository.CheckAuth(int(userId))
+	return c.JSON(http.StatusOK, dto.SuccessResult{Code: http.StatusOK, Data: user})
 }

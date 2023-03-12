@@ -1,50 +1,107 @@
 import { Form } from "react-bootstrap";
 import { Container, Row, Col } from "react-bootstrap";
-import produkFor from "../assets/produk-4.png";
 import { Link, useParams } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "react-query";
+import { API } from "../config/api";
+import Swal from "sweetalert2";
+import { useMutation } from "react-query";
 
 const EditProduct = () => {
-  //
-  const index = parseInt(useParams().id);
-  const data = JSON.parse(localStorage.getItem("EDITPRODUCT"));
+  const { id } = useParams();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+  const [preview, setPreview] = useState(null);
+  const [form, setForm] = useState({
+    name: "",
+    description: "",
+    price: "",
+    stock: "",
+    photo: "",
+  });
 
-  const [editData, setEditData] = useState(data);
+  async function getDataUpdate() {
+    const responseProduct = await API.get("/product/" + id);
+    setPreview(`http://localhost:5000/uploads/${responseProduct.data.data.photo}`);
 
-  const handleRegisterChange = (e) => {
-    e.preventDefault();
-    let name = e.target.name;
-    let value = e.target.value;
-    setEditData({ ...editData, [name]: value });
+    setForm({
+      ...form,
+      name: responseProduct.data.data.name,
+      description: responseProduct.data.data.description,
+      price: responseProduct.data.data.price,
+      stock: responseProduct.data.data.stock,
+    });
+    setIsLoading(false);
+  }
+
+  useEffect(() => {
+    getDataUpdate();
+  }, []);
+
+  const [editData, setEditData] = useState();
+
+  const handleEditChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.type === "file" ? e.target.files : e.target.value,
+    });
+
+    // Create image url for preview
+    if (e.target.type === "file") {
+      let url = URL.createObjectURL(e.target.files[0]);
+      setPreview(url);
+    }
   };
-  const handleSubmitEdit = (e) => {
-    e.preventDefault();
-    console.log(index);
-    const dataProduct = JSON.parse(localStorage.getItem("NEWPRODUCT"));
 
-    dataProduct.splice(index, 1, editData);
-    localStorage.setItem("NEWPRODUCT", JSON.stringify(dataProduct));
-    setEditData(dataProduct);
-    console.log(dataProduct);
-    navigate(`/list-product`);
-  };
+  const handleSubmitEdit = useMutation(async (e) => {
+    try {
+      e.preventDefault();
+      // Configuration
+      const config = {
+        headers: {
+          "Content-type": "multipart/form-data",
+        },
+      };
+
+      // Store data with FormData as object
+      const formData = new FormData();
+      formData.set("name", form.name);
+      formData.set("description", form.description);
+      formData.set("price", form.price);
+      formData.set("stock", form.stock);
+      formData.set("photo", form.photo[0]);
+      setPreview(form.photo);
+
+      const response = await API.patch("/product/" + id, formData, config);
+      console.log(response.data.data);
+      Swal.fire({
+        icon: "success",
+        title: "Your Product has been updated",
+        showConfirmButton: false,
+        timer: 2000,
+      });
+      navigate("/list-product");
+    } catch (error) {
+      console.log(form);
+      console.log(error);
+    }
+  });
 
   return (
     <Container>
       <Container className="px-5" style={{ paddingTop: "100px", height: "80vh", backgroundColor: "" }}>
-        <Row height={"50%"} className="p-1 justify-content-center">
+        <Row height={"100%"} className="p-1 justify-content-center">
           <Col md={8} className="">
-            <Form onSubmit={handleSubmitEdit}>
+            <Form onSubmit={(e) => handleSubmitEdit.mutate(e)}>
               <h1 className="fs-3">Add Product</h1>
-              <Form.Group className="my-3" controlId="nameProduct">
+              <Form.Group className="my-3" controlId="name">
                 <Form.Control
                   type="text"
-                  onChange={handleRegisterChange}
-                  value={editData.nameProduct}
+                  onChange={handleEditChange}
+                  value={form?.name}
                   placeholder="Name Product"
-                  name="nameProduct"
+                  name="name"
                   style={{ backgroundColor: "#613D2B40", border: "solid 2px #613D2B" }}
                 />
               </Form.Group>
@@ -52,37 +109,36 @@ const EditProduct = () => {
               <Form.Group className="my-3" controlId="stock">
                 <Form.Control
                   type="text"
-                  onChange={handleRegisterChange}
-                  value={editData.stock}
+                  onChange={handleEditChange}
                   name="stock"
+                  value={form?.stock}
                   placeholder="Stock"
                   style={{ backgroundColor: "#613D2B40", border: "solid 2px #613D2B" }}
                 />
               </Form.Group>
-              <Form.Group className="my-3" controlId="priceProduct">
+              <Form.Group className="my-3" controlId="price">
                 <Form.Control
                   type="text"
-                  onChange={handleRegisterChange}
-                  value={editData.priceProduct}
-                  name="priceProduct"
+                  onChange={handleEditChange}
+                  value={form?.price}
+                  name="price"
                   placeholder="Price"
                   style={{ backgroundColor: "#613D2B40", border: "solid 2px #613D2B" }}
                 />
               </Form.Group>
-              <Form.Group className="my-3" controlId="descriptionProduct">
+              <Form.Group className="my-3" controlId="descriptiont">
                 <Form.Control
                   type="text"
-                  id="descriptionProduct"
-                  value={editData.descriptionProduct}
-                  onChange={handleRegisterChange}
-                  name="descriptionProduct"
+                  onChange={handleEditChange}
+                  name="description"
+                  value={form?.description}
                   placeholder="Description Product"
                   style={{ backgroundColor: "#613D2B40", border: "solid 2px #613D2B" }}
                 />
               </Form.Group>
-              {/* <Form.Group controlId="formFile" className="mt-3 w-50 ">
-              <Form.Control type="file" className="" />
-            </Form.Group> */}
+              <Form.Group controlId="formFile" className="mt-3 w-50 ">
+                <Form.Control type="file" name="photo" onChange={handleEditChange} />
+              </Form.Group>
               <Container className=" d-flex justify-content-center mt-3">
                 <button
                   className="d-flex justify-content-center align-items-center"
@@ -94,7 +150,9 @@ const EditProduct = () => {
             </Form>
           </Col>
           <Col className="" md={4}>
-            <img src={produkFor} width={"100%"} height={"auto"} />
+            <div style={{ width: "100%", height: "100%" }}>
+              <img src={preview} width={"100%"} height={"100%"} />
+            </div>
           </Col>
         </Row>
       </Container>

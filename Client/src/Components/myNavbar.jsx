@@ -52,14 +52,11 @@ const MyNavbar = () => {
   const { userData, setUserData, islogin, setLogin, adminlogin, setAdminLogin } = kumpulanState;
   const [state, dispatch] = useContext(UserContext);
 
-  const userDataLocal = JSON.parse(localStorage.getItem("USERDATA"));
-
   const handleDiretToAdmin = () => {
     navigate("/admin");
   };
 
   const date = new Date();
-  const userId = date.getTime();
 
   const [formRegister, setFormRegister] = useState({
     name: "",
@@ -83,6 +80,7 @@ const MyNavbar = () => {
       formData.set("email", formRegister.email);
       formData.set("password", formRegister.password);
       const response = await API.post("/register", formData);
+      console.log(response.data.data);
 
       console.log("register succeess", response);
       Swal.fire("Good job!", "You clicked the button!", "success");
@@ -125,17 +123,15 @@ const MyNavbar = () => {
         payload: response.data.data,
       });
 
-      setAuthToken(localStorage.token);
-      setLogin(true);
+      setAuthToken(response.data.data.token);
 
-      // Status check
-      navigate("/");
-
-      //
-      if (state.user.role === "admin") {
+      console.log(response);
+      if (response.data.data.role === "admin") {
         setAdminLogin(true);
-      } else if (state.user.role === "user") {
+        navigate("/admin");
+      } else if (response.data.data.role === "user") {
         setLogin(true);
+        navigate("/");
       }
       console.log(state);
     } catch (error) {
@@ -145,16 +141,6 @@ const MyNavbar = () => {
   });
   //
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("ISLOGIN"));
-    if (user) {
-      setLogin(false);
-    }
-
-    checkQty();
-    const handleStorageChange = (event) => {
-      checkQty();
-    };
-
     window.addEventListener("storage", checkQty);
   }, []);
 
@@ -187,21 +173,33 @@ const MyNavbar = () => {
     setShow(true);
   };
 
-  if (adminlogin) {
+  function setLogoutUser() {
+    setLogin(false);
+    localStorage.removeItem("token");
+    window.location.reload();
+  }
+
+  function setLogoutAdmin() {
+    setAdminLogin(false);
+    localStorage.removeItem("token");
+    window.location.reload();
+  }
+
+  if (state.user.role === "admin") {
     return (
       <>
         <AdminNav
           admin={() => {
-            setAdminLogin(false);
+            setLogoutAdmin();
           }}
         />
         ;
       </>
     );
-  } else if (islogin) {
+  } else if (state.user.role === "user") {
     return (
       <>
-        <IsLoginNav login={() => setLogin(false)} qty={qty} />;
+        <IsLoginNav login={() => setLogoutUser()} qty={qty} />;
       </>
     );
   } else {

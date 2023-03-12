@@ -43,7 +43,11 @@ export const ContextProvider = (props) => {
 
   let [stateQuantity, setStateQuantity] = useState();
 
+  const [stateUpdProfile, setStateUpdProfile] = useState();
+
   let kumpulanState = {
+    stateUpdProfile,
+    setStateUpdProfile,
     adminlogin,
     setAdminLogin,
     islogin,

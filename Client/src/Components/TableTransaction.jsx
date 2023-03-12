@@ -17,27 +17,14 @@ function TableTransaction() {
           </tr>
         </thead>
         <tbody>
-          {data.map((item, index) => {
-            console.log(item.productOrder);
-            return (
-              <tr>
-                <td>{index + 1}</td>
-                <td>{item.name}</td>
-                <td>{item.shippingAddress}</td>
-                <td>{item.shippingPostCode}</td>
-                <td>
-                  {item.productOrder.map((order, index) => {
-                    return (
-                      <ul style={{ listStyle: "none" }}>
-                        <li>{order}</li>
-                      </ul>
-                    );
-                  })}
-                </td>
-                <td>Waiting Approve</td>
-              </tr>
-            );
-          })}
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>Waiting Approve</td>
+          </tr>
         </tbody>
       </Table>
     </Container>

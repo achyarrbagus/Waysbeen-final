@@ -2,6 +2,7 @@ package routes
 
 import (
 	"backEnd/handlers"
+	"backEnd/pkg/middleware"
 	"backEnd/pkg/mysql"
 	"backEnd/repositories"
 
@@ -15,5 +16,6 @@ func AuthRoutes(e *echo.Group) {
 
 	e.POST("/login", h.Login)
 	e.POST("/register", h.Register)
+	e.GET("/check-auth", middleware.Auth(h.CheckAuth))
 
 }

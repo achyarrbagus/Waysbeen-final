@@ -13,6 +13,7 @@ import (
 	"strconv"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/labstack/echo/v4"
 )
 
@@ -92,10 +93,12 @@ func (h *handlerProfile) FindProfile(c echo.Context) error {
 }
 
 func (h *handlerProfile) GetProfile(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("id"))
+	// id, _ := strconv.Atoi(c.Param("id"))
+	loginUser := c.Get("userLogin")
+	isLoginUser := loginUser.(jwt.MapClaims)["id"].(float64)
 
 	var profile models.Profile
-	profile, err := h.ProfileRepository.GetProfile(id)
+	profile, err := h.ProfileRepository.GetProfile(int(isLoginUser))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()})
 	}

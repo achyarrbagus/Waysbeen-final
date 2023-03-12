@@ -13,16 +13,16 @@ import Logout from "../assets/logout.png";
 import { Badge } from "react-bootstrap";
 import { ContextGlobal } from "../context/Context";
 import { useContext, useState, useEffect } from "react";
+import { UserContext } from "../context/UserContext";
 
 function IsLoginNav(props) {
   const { kumpulanState } = useContext(ContextGlobal);
-  const { state, setState, stateQuantity, setStateQuantity } = kumpulanState;
+  const [state] = useContext(UserContext);
+  const { stateQuantity, setStateQuantity } = kumpulanState;
 
   // useEffect(() => {
-  //   checkQty();
-  //   const handleStorageChange = (event) => {
-  //     checkQty();
-  //   };
+  //   console.log(state.user.profile.photo);
+  // }, []);
 
   //   window.addEventListener("storage", handleStorageChange);
   // }, []);
@@ -36,6 +36,7 @@ function IsLoginNav(props) {
   //   });
   //   setqty(tmp);
   // };
+
   return (
     <Navbar bg="light" expand="lg">
       <Container
@@ -70,14 +71,18 @@ function IsLoginNav(props) {
             <Button variant="">
               <Dropdown>
                 <Dropdown.Toggle style={{ backgroundColor: "transparent", border: "none" }} id="dropdown-basic">
-                  <img src={Profil} width={"50px"} style={{ borderRadius: "50%" }} />
+                  <img
+                    src={`http://localhost:5000/uploads/${state.user.profile.photo}`}
+                    width={"50px"}
+                    style={{ borderRadius: "50%" }}
+                  />
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu className="p-2">
                   <Dropdown.Item>
-                    <Link to={"/detail-transaction"} style={{ textDecoration: "none", color: "#000000" }}>
+                    <Link to={`/detail-transaction`} style={{ textDecoration: "none", color: "#000000" }}>
                       <div className="d-flex gap-2">
-                        <img src={Profile1} width={"30px"} />
+                        <img src={`http://localhost:5000/uploads/${state.user.profile.photo}`} width={"30px"} />
                         <p>Profil</p>
                       </div>
                     </Link>

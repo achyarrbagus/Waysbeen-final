@@ -4,9 +4,12 @@ import { useState, useEffect } from "react";
 import { json } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { Swal } from "sweetalert2";
+import { useQuery } from "react-query";
+import { API } from "./../config/api";
+import { useMutation } from "react-query";
 
 function ListProduk() {
-  const [listProduct, setListProduct] = useState([]);
+  const [listProduct, setListProduct] = useState();
   const navigate = useNavigate();
 
   const handlerToEditProduct = (index) => {
@@ -15,26 +18,26 @@ function ListProduk() {
     navigate(`/edit-product/${index}`);
   };
 
-  useEffect(() => {
-    fecthData();
-  }, []);
+  let { data: dataProducts, refetch } = useQuery("productChace", async () => {
+    const response = await API.get("/product");
+    return response.data.data;
+  });
 
-  const fecthData = () => {
-    const dataProduct = JSON.parse(localStorage.getItem("NEWPRODUCT"));
-    setListProduct(dataProduct);
-  };
-  const deleteProduct = (index) => {
-    // const dataProduct = JSON.parse(localStorage.getItem("NEWPRODUCT"));
-    // dataProduct.splice(index, 1);
-    // localStorage.setItem("NEWPRODUCT", JSON.stringify(dataProduct));
-    // setListProduct(dataProduct);
-    Swal.fire({
-      icon: "success",
-      title: `Delete Product Success${index}`,
-      timer: 1500,
-    });
-    console.log("hello world");
-  };
+  useEffect(() => {
+    setListProduct(dataProducts);
+  }, [dataProducts]);
+
+  // Variabel for delete product data
+  const handleDelete = useMutation(async (id) => {
+    try {
+      const response = await API.delete(`/product/${id}`);
+      console.log(response);
+      alert("Delete Data Success");
+      refetch();
+    } catch (error) {
+      console.log(error);
+    }
+  });
 
   return (
     <Container style={{ marginTop: "200PX" }}>
@@ -51,24 +54,34 @@ function ListProduk() {
           </tr>
         </thead>
         <tbody>
-          {listProduct.map((item, index) => (
-            <tr>
-              <td>{index + 1}</td>
-              <td></td>
-              <td>{item.nameProduct}</td>
-              <td>{item.stock}</td>
-              <td>{item.priceProduct}</td>
-              <td>{item.descriptionProduct}</td>
-              <td className="d-flex gap-1">
-                <Button className="btn-success" onClick={() => handlerToEditProduct(index)}>
-                  Update
-                </Button>
-                <Button className="btn-danger" onClick={() => deleteProduct(index)}>
-                  Delete
-                </Button>
-              </td>
-            </tr>
-          ))}
+          {listProduct?.map((item, index) => {
+            // console.log(item);
+            return (
+              <tr>
+                <td>{item.id}</td>
+                <td width={"20%"}>
+                  <img src={`http://localhost:5000/uploads/${item.photo}`} alt="ini gambar" width={"100%"} />
+                </td>
+                <td>{item.name}</td>
+                <td>{item.stock}</td>
+                <td>{item.price}</td>
+                <td>{item.description}</td>
+                <td className="d-flex gap-1">
+                  <Button className="btn-success" onClick={() => navigate(`/edit-product/${item.id}`)}>
+                    Update
+                  </Button>
+                  <Button
+                    className="btn-danger"
+                    onClick={() => {
+                      handleDelete.mutate(item.id);
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </Table>
     </Container>

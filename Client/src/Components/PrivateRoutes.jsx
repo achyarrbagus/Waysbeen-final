@@ -8,9 +8,9 @@ function PrivateRoute() {
   const [state] = useContext(UserContext);
   const { adminlogin, setAdminLogin } = kumpulanState;
 
-  const isSignIn = state.role === "admin";
+  const isSignIn = state.user.role;
 
-  return isSignIn === true ? <Outlet /> : <Navigate to="/" />;
+  return isSignIn === "admin" ? <Outlet /> : <Navigate to="/" />;
 }
 
 export default PrivateRoute;
