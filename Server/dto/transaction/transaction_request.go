@@ -6,10 +6,11 @@ type CreateRequestCart struct {
 }
 
 type CreateTransactionRequest struct {
-	Name    string              `json:"name"`
-	Email   string              `json:"email"`
-	Phone   string              `json:"phone"`
-	Gender  string              `json:"gender"`
-	Address string              `json:"address"`
-	Product []CreateRequestCart `json:"products"`
+	Name       string              `json:"name"`
+	Email      string              `json:"email"`
+	Phone      string              `json:"phone"`
+	Gender     string              `json:"gender"`
+	Address    string              `json:"address"`
+	Product    []CreateRequestCart `json:"products"`
+	TotalPrice int                 `json:"price"`
 }

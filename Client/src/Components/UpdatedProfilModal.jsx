@@ -55,7 +55,7 @@ function UpdatedProfilModal({ show, closeModal, id, refetch }) {
 
       const response = await API.patch("/profile/" + id, formProfil, config);
       Swal.fire("updated data succes");
-      navigate("/");
+      window.location.href = "/";
       refetch();
     } catch (error) {
       console.log(error);

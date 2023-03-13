@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/labstack/echo/v4"
 )
@@ -29,17 +30,28 @@ func (h *handlerTransaction) CreateTransaction(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()})
 
 	}
+	validation := validator.New()
+	err := validation.Struct(request)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()})
+
+	}
+
 	loginUser := c.Get("userLogin")
 	isLoginUser := loginUser.(jwt.MapClaims)["id"].(float64)
+
+	intPhone, _ := strconv.Atoi(request.Phone)
 	// data form pattern submit to pattern entity db transaction
 	transaction := models.Transaction{
-		UserID:    int(isLoginUser),
-		Name:      request.Name,
-		Email:     request.Email,
-		Status:    "Waiting Approve",
-		Address:   request.Address,
-		Date:      time.Now(),
-		CreatedAt: time.Now(),
+		UserID:     int(isLoginUser),
+		Name:       request.Name,
+		Email:      request.Email,
+		Phone:      intPhone,
+		Status:     "Waiting Approve",
+		Address:    request.Address,
+		TotalPrice: request.TotalPrice,
+		Date:       time.Now(),
+		CreatedAt:  time.Now(),
 	}
 
 	newTransaction, err := h.TransactionRepository.CreateTransaction(transaction)
@@ -61,7 +73,9 @@ func (h *handlerTransaction) CreateTransaction(c echo.Context) error {
 		}
 	}
 
-	return c.JSON(http.StatusOK, dto.SuccessResult{Code: http.StatusOK, Data: newTransaction})
+	transaction, _ = h.TransactionRepository.GetTransaction(newTransaction.ID)
+
+	return c.JSON(http.StatusOK, dto.SuccessResult{Code: http.StatusOK, Data: transaction})
 
 }
 

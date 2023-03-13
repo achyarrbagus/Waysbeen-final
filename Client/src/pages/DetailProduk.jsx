@@ -16,7 +16,7 @@ const DetailProduk = () => {
   const params = useParams();
   const id = parseInt(params.id);
   const { kumpulanState } = useContext(ContextGlobal);
-  const { state, setState, chartData, setChartData, stateQuantity, setStateQuantity } = kumpulanState;
+  const { state, setState, stateQuantity, setStateQuantity } = kumpulanState;
   const [product, setProduct] = useState({});
 
   //
@@ -54,7 +54,8 @@ const DetailProduk = () => {
       Image: product.photo,
     };
 
-    console.log(chartData);
+    const chartData = JSON.parse(localStorage.getItem("CHARTDATA"));
+    // console.log(chartData);
     if (chartData === null) {
       newChart.quantity = 1;
       const newChartJson = JSON.stringify([newChart]);

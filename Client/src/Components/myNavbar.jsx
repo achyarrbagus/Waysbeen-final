@@ -108,44 +108,14 @@ const MyNavbar = () => {
     tokenJwt: "",
   });
 
-  const handleLoginSubmit = useMutation(async (e) => {
-    try {
-      e.preventDefault();
-      const formData = new FormData();
-      formData.set("email", inputLogin.email);
-      formData.set("password", inputLogin.password);
-      // Insert data for login process, you can also make this without any configuration, because axios would automatically handling it.
-      const response = await API.post("/login", formData);
-      // Send data to useContext
-
-      dispatch({
-        type: "LOGIN_SUCCESS",
-        payload: response.data.data,
-      });
-
-      setAuthToken(response.data.data.token);
-
-      console.log(response);
-      if (response.data.data.role === "admin") {
-        setAdminLogin(true);
-        navigate("/admin");
-      } else if (response.data.data.role === "user") {
-        setLogin(true);
-        navigate("/");
-      }
-      console.log(state);
-    } catch (error) {
-      console.log(error);
-      alert("login failed");
-    }
-  });
   //
   useEffect(() => {
+    checkQty();
     window.addEventListener("storage", checkQty);
   }, []);
 
   //
-  const [qty, setqty] = useState(0);
+  const [qty, setqty] = useState();
   const checkQty = () => {
     const chartData = JSON.parse(localStorage.getItem("CHARTDATA")) || [];
     let tmp = 0;
@@ -173,17 +143,57 @@ const MyNavbar = () => {
     setShow(true);
   };
 
+  const emptyArray = [];
+
   function setLogoutUser() {
     setLogin(false);
     localStorage.removeItem("token");
+    localStorage.setItem("CHARTDATA", JSON.stringify(emptyArray));
     window.location.reload();
   }
 
   function setLogoutAdmin() {
     setAdminLogin(false);
     localStorage.removeItem("token");
+    localStorage.setItem("CHARTDATA", JSON.stringify(emptyArray));
+
     window.location.reload();
   }
+  //
+  const handleLoginSubmit = useMutation(async (e) => {
+    try {
+      e.preventDefault();
+      const formData = new FormData();
+      formData.set("email", inputLogin.email);
+      formData.set("password", inputLogin.password);
+      // Insert data for login process, you can also make this without any configuration, because axios would automatically handling it.
+      const response = await API.post("/login", formData);
+      // Send data to useContext
+
+      dispatch({
+        type: "LOGIN_SUCCESS",
+        payload: response.data.data,
+      });
+
+      setAuthToken(response.data.data.token);
+
+      console.log(response);
+      if (response.data.data.role === "admin") {
+        setAdminLogin(true);
+        window.location.reload();
+        navigate("/admin");
+      } else if (response.data.data.role === "user") {
+        setLogin(true);
+        window.location.reload();
+        navigate("/");
+      }
+      console.log(state);
+      localStorage.setItem("CHARTDATA", JSON.stringify(emptyArray));
+    } catch (error) {
+      console.log(error);
+      alert("login failed");
+    }
+  });
 
   if (state.user.role === "admin") {
     return (

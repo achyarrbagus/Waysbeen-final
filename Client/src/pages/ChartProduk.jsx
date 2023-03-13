@@ -7,7 +7,7 @@ import Order from "../assets/order.json";
 import { ContextGlobal } from "../context/Context";
 import { useContext, useEffect } from "react";
 import { Navigate } from "react-router-dom";
-// import ShippingModal from "../Components/ShippingModal";
+import ShippingModal from "../Components/ShippingModal";
 import Swal from "sweetalert2";
 
 const ChartProduk = () => {
@@ -15,6 +15,7 @@ const ChartProduk = () => {
   const { chartData, setChartData, stateQuantity, setStateQuantity, showModal, setShowModal } = kumpulanState;
   const [data, setData] = useState([]);
   const navigate = useNavigate();
+  // const [price, setPrice] = useState();
 
   // const setQuantity = () => {
   //   const chartData = JSON.parse(localStorage.getItem("CHARTDATA"));
@@ -30,11 +31,14 @@ const ChartProduk = () => {
   // // setQuantity();
   // console.log(stateQuantity);
 
-  const totalPrice =
-    data.length > 0 &&
-    data.reduce((acc, item) => {
-      return acc + item.priceProduct * item.quantity;
-    }, 0);
+  // const totalPrice =
+  //   data.length > 0 &&
+  //   data.reduce((acc, item) => {
+  //     const price = item.priceProduct || 0;
+  //     const quantity = item.quantity || 0;
+  //     return acc + price * quantity;
+  //   }, 0);
+  // const totalPrice = data.reduce((acc, { priceProduct = 0, quantity = 0 }) => acc + priceProduct * quantity, 0);
 
   const totalQuantity =
     data.length > 0 &&
@@ -49,24 +53,11 @@ const ChartProduk = () => {
   //   result.push(x.namaProduct);
   // }
 
-  // const handlerPay = () => {
-  //   const chartData = JSON.parse(localStorage.getItem("CHARTDATA"));
-  //   const quantity = chartData.map((item) => item.quantity);
-  //   const totalQty = quantity.reduce((sum, quantity) => {
-  //     return sum + quantity;
-  //   });
-  //   setStateQuantity(totalQty);
-  //   const myTrans = {
-  //     totalQuantity: totalQuantity,
-  //     totalPrice: totalPrice,
-  //     product: result,
-  //   };
-  //   localStorage.setItem("MYTRANS", JSON.stringify(myTrans));
-  //   console.log(result);
-  //   setShowModal(true);
-  // };
+  const handlerPay = () => {
+    setShowModal(true);
+  };
 
-  const incrment = (index) => {
+  const incremeent = (index) => {
     const updateChart = [...data];
     updateChart[index].quantity += 1;
     setData(updateChart);
@@ -74,11 +65,12 @@ const ChartProduk = () => {
     window.dispatchEvent(new Event("storage"));
   };
 
-  const dcrement = (item, index) => {
+  const decremeent = (item, index) => {
     const updateChart = [...data];
     updateChart[index].quantity = Math.max(1, item.quantity - 1);
     setData(updateChart);
-    localStorage.setItem("CHARTDATA", JSON.stringify(updateChart));
+    console.log(data);
+    localStorage.setItem("CHARTDATA", JSON.stringify(data));
     window.dispatchEvent(new Event("storage"));
   };
 
@@ -90,7 +82,7 @@ const ChartProduk = () => {
     window.dispatchEvent(new Event("storage"));
     Swal.alert({
       icon: "success",
-      title: "Add Product Success",
+      title: "Delete Product Success",
       timer: 1500,
     });
   };
@@ -98,10 +90,20 @@ const ChartProduk = () => {
   const dataChart = JSON.parse(localStorage.getItem("CHARTDATA"));
   useEffect(() => {
     setData(dataChart);
+    // setData(dataChart);
   }, []);
+
+  const totalPrice =
+    dataChart.length > 0 &&
+    dataChart.reduce((acc, item) => {
+      return acc + item.priceProduct * item.quantity;
+    }, 0);
+
+  // alert(totalPrice);
 
   return (
     <Container>
+      <ShippingModal price={totalPrice} setData={setData} />
       <Row className="justify-content-center" style={{ marginTop: "100px" }}>
         <Col className="fs-3">My Chart</Col>
       </Row>
@@ -124,14 +126,14 @@ const ChartProduk = () => {
                   <h1 className="fs-4">{item.namaProduct}</h1>
                 </div>
                 <div className="d-flex gap-2">
-                  <button className="fs-5" style={{ border: "none" }}>
-                    +
+                  <button className="fs-5" style={{ border: "none" }} onClick={() => decremeent(item, index)}>
+                    -
                   </button>
                   <h3 className="fs-5 p-1 " style={{ backgroundColor: "#F6E6DA" }}>
                     {item.quantity}
                   </h3>
-                  <button className="fs-5" style={{ border: "none" }}>
-                    -
+                  <button className="fs-5" style={{ border: "none" }} onClick={() => incremeent(index)}>
+                    +
                   </button>
                 </div>
               </div>
@@ -184,7 +186,12 @@ const ChartProduk = () => {
             </div>
           </div>
           <div className="d-flex justify-content-end">
-            <button style={{ backgroundColor: "#613D2B", width: "300px", color: "white", borderRadius: "5px" }}>Pay</button>
+            <button
+              onClick={handlerPay}
+              style={{ backgroundColor: "#613D2B", width: "300px", color: "white", borderRadius: "5px" }}
+            >
+              Pay
+            </button>
           </div>
         </Col>
       </Row>

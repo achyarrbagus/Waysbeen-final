@@ -5,18 +5,19 @@ import (
 )
 
 type Transaction struct {
-	ID        int                  `json:"id" gorm:"primary_key:auto_increment"`
-	UserID    int                  `json:"user_id" gorm:"type:int"`
-	Name      string               `json:"name" gorm:"type:varchar(225)"`
-	Email     string               `json:"email" gorm:"type:varchar(225)"`
-	Phone     int                  `json:"phone" gorm:"type:varchar(225)"`
-	Address   string               `json:"address"`
-	Date      time.Time            `json:"date"`
-	Status    string               `json:"status" gorm:"type:varchar(225)"`
-	User      UsersProfileResponse `json:"user"`
-	Cart      []CartResponse       `json:"cart"`
-	CreatedAt time.Time            `json:"created_at"`
-	UpdatedAt time.Time            `json:"updated_at"`
+	ID         int                  `json:"id" gorm:"primary_key:auto_increment"`
+	UserID     int                  `json:"user_id" gorm:"type:int"`
+	Name       string               `json:"name" gorm:"type:varchar(225)"`
+	Email      string               `json:"email" gorm:"type:varchar(225)"`
+	Phone      int                  `json:"phone" gorm:"type:varchar(225)"`
+	TotalPrice int                  `json:"price"`
+	Address    string               `json:"address"`
+	Date       time.Time            `json:"date"`
+	Status     string               `json:"status" gorm:"type:varchar(225)"`
+	User       UsersProfileResponse `json:"user"`
+	Cart       []CartResponse       `json:"cart"`
+	CreatedAt  time.Time            `json:"created_at"`
+	UpdatedAt  time.Time            `json:"updated_at"`
 }
 
 type TransactionUserResponse struct {

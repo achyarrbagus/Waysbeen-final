@@ -90,7 +90,7 @@ function Jumbotron() {
         </Col>
       </Row>
       <Row className="d-flex justify-content-center gap-5 mt-5">
-        {products?.length !== 0 ? (
+        {products?.length !== 0 &&
           productData?.map((item, index) => {
             return (
               <Col md={3}>
@@ -108,10 +108,7 @@ function Jumbotron() {
                 </Link>
               </Col>
             );
-          })
-        ) : (
-          <h1>empty Product</h1>
-        )}
+          })}
       </Row>
     </Container>
   );

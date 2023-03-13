@@ -23,10 +23,6 @@ const DetailTransaction = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const fecthData = () => {
-    const myTrans = JSON.parse(localStorage.getItem("MYTRANS"));
-    setTrans(myTrans);
-    const isLogin = JSON.parse(localStorage.getItem("ISLOGIN"));
-    setIsLogin(isLogin);
     const chart = JSON.parse(localStorage.getItem("CHARTDATA"));
     setChart(chart);
   };

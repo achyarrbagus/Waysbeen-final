@@ -20,9 +20,7 @@ function IsLoginNav(props) {
   const [state] = useContext(UserContext);
   const { stateQuantity, setStateQuantity } = kumpulanState;
 
-  // useEffect(() => {
-  //   console.log(state.user.profile.photo);
-  // }, []);
+  useEffect(() => {}, []);
 
   //   window.addEventListener("storage", handleStorageChange);
   // }, []);
