@@ -13,12 +13,12 @@ import (
 )
 
 func main() {
-	var port = os.Getenv("PORT")
 
 	errEnv := godotenv.Load()
 	if errEnv != nil {
 		panic("Failed to load env file")
 	}
+	var port = os.Getenv("PORT")
 
 	e := echo.New()
 
@@ -35,5 +35,5 @@ func main() {
 
 	e.Static("/uploads", "./uploads")
 	fmt.Println("server running localhost:" + port)
-	e.Logger.Fatal(e.Start(":" + port)) // delete localhost
+	e.Logger.Fatal(e.Start("localhost:" + port)) // delete localhost
 }
