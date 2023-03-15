@@ -191,7 +191,7 @@ const MyNavbar = () => {
       localStorage.setItem("CHARTDATA", JSON.stringify(emptyArray));
     } catch (error) {
       console.log(error);
-      alert("login failed");
+      alert("login faileed");
     }
   });
 
