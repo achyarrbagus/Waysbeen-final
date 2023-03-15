@@ -5,6 +5,7 @@ import (
 	"backEnd/pkg/mysql"
 	"backEnd/routes"
 	"fmt"
+	"os"
 
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
@@ -12,6 +13,7 @@ import (
 )
 
 func main() {
+	var port = os.Getenv("PORT")
 
 	errEnv := godotenv.Load()
 	if errEnv != nil {
@@ -32,6 +34,6 @@ func main() {
 	routes.RouteInit(e.Group("/api/v1"))
 
 	e.Static("/uploads", "./uploads")
-	fmt.Println("server running on localhost:5000")
-	e.Logger.Fatal(e.Start("localhost:5000"))
+	fmt.Println("server running localhost:" + port)
+	e.Logger.Fatal(e.Start(":" + port)) // delete localhost
 }
