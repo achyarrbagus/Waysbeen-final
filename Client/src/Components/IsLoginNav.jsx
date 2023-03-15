@@ -20,7 +20,7 @@ function IsLoginNav(props) {
   const [state] = useContext(UserContext);
   const { stateQuantity, setStateQuantity } = kumpulanState;
 
-  useEffect(() => {}, []);
+  // useEffect(() => {}, []);
 
   //   window.addEventListener("storage", handleStorageChange);
   // }, []);

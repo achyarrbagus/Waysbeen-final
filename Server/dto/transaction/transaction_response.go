@@ -8,4 +8,5 @@ type transactionResponse struct {
 	Address    string              `json:"address"`
 	Product    []CreateRequestCart `json:"product"`
 	TotalPrice int                 `json:"price"`
+	Status     string              `json:"status"`
 }

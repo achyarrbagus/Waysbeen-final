@@ -44,10 +44,30 @@ const ShippingModal = (props) => {
     try {
       e.preventDefault();
       const response = await API.post("/transaction", formData);
-      window.location.href = "/";
-      alert("success create transaction");
-      localStorage.setItem("CHARTDATA", JSON.stringify(emptyArray));
-      props.setData(emptyArray);
+
+      const token = response.data.data.token;
+
+      window.snap.pay(token, {
+        onSuccess: function (result) {
+          /* You may add your own implementation here */
+          console.log(result);
+          navigate("/detail-transaction");
+        },
+        onPending: function (result) {
+          /* You may add your own implementation here */
+          console.log(result);
+          navigate("/detail-transaction");
+        },
+        onError: function (result) {
+          /* You may add your own implementation here */
+          console.log(result);
+          navigate("/detail-transaction");
+        },
+        onClose: function () {
+          /* You may add your own implementation here */
+          alert("you closed the popup without finishing the payment");
+        },
+      });
     } catch (error) {
       console.log(error);
       alert("transaction failed");

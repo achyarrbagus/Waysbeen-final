@@ -13,4 +13,5 @@ type CreateTransactionRequest struct {
 	Address    string              `json:"address"`
 	Product    []CreateRequestCart `json:"products"`
 	TotalPrice int                 `json:"price"`
+	Status     string              `json:"status"`
 }
